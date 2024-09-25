@@ -1,3 +1,5 @@
 # Preludio - Robotics 
-En este repositorio encontraremos los ejercicios a desarrollar y los códigos de los equipos de trabajo.
+
+## Descargar `git`:
+1. Acceda a [Este enlace](http://git-scm.com/download/win) para descargar el instalador de `git` para Windows. 
 
