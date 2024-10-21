@@ -1,1 +1,21 @@
+# Configura los pines del Robot
+carro = Robot(left=(7, 8), right=(9, 10))  # Ajusta estos pines según tu configuración
 
+# Avanzar
+carro.forward()
+sleep(2)  # Avanza durante 2 segundos
+
+# Girar a la izquierda
+carro.left()
+sleep(1)  # Gira a la izquierda durante 1 segundo
+
+# Avanzar
+carro.forward()
+sleep(2)  # Avanza durante 2 segundos
+
+# Girar a la derecha
+carro.right()
+sleep(1)  # Gira a la derecha durante 1 segundo
+
+# Detenerse
+carro.stop()
