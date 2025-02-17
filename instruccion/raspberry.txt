@@ -1,0 +1,57 @@
+import RPi.GPIO as GPIO
+import time
+
+# Configuración de los pines GPIO
+GPIO.setmode(GPIO.BCM)  # Usar numeración BCM
+motor_pin1 = 17         # Pin para el control del motor (dirección 1)
+motor_pin2 = 18         # Pin para el control del motor (dirección 2)
+motor_enable = 27       # Pin para habilitar el motor
+led_pin = 22            # Pin para el LED
+
+# Configuración de los pines como salida
+GPIO.setup(motor_pin1, GPIO.OUT)
+GPIO.setup(motor_pin2, GPIO.OUT)
+GPIO.setup(motor_enable, GPIO.OUT)
+GPIO.setup(led_pin, GPIO.OUT)
+
+# Función para encender el LED
+def encender_led():
+    GPIO.output(led_pin, GPIO.HIGH)
+    print("LED encendido")
+
+# Función para apagar el LED
+def apagar_led():
+    GPIO.output(led_pin, GPIO.LOW)
+    print("LED apagado")
+
+# Función para mover el motor en una dirección
+def mover_motor():
+    GPIO.output(motor_pin1, GPIO.HIGH)
+    GPIO.output(motor_pin2, GPIO.LOW)
+    GPIO.output(motor_enable, GPIO.HIGH)
+    print("Motor encendido y girando en una dirección")
+    
+# Función para detener el motor
+def detener_motor():
+    GPIO.output(motor_enable, GPIO.LOW)
+    print("Motor detenido")
+
+try:
+    # Encender el LED
+    encender_led()
+    
+    # Mover el motor por 5 segundos
+    mover_motor()
+    time.sleep(5)
+    
+    # Detener el motor
+    detener_motor()
+    
+    # Apagar el LED
+    apagar_led()
+
+finally:
+    # Limpiar la configuración GPIO al finalizar
+    GPIO.cleanup()
+    print("Limpieza de pines GPIO completada")
+
