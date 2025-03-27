@@ -3,16 +3,16 @@
 
 # Configuración de pines para el motor (L298N)
 MOTOR_PINS = {
-    "ENA": 26,  # PWM motor A
+    "ENA": 13,  # PWM motor A
     "IN1": 19,  # Control dirección motor A
-    "IN2": 13,
-    "ENB": 11,  # PWM motor B
-    "IN3": 6,   # Control dirección motor B
-    "IN4": 5
+    "IN2": 16,
+    "ENB": 21,  # PWM motor B
+    "IN3": 26,   # Control dirección motor B
+    "IN4": 20
 }
 
 # Configuración de pines para sensores de línea (QTR-8RC)
-SENSOR_PINS = [24, 25, 8, 7, 12, 16, 20, 21]
+SENSOR_PINS = [2, 3, 4, 17, 18, 27]
 
 # Configuración de control de movimiento
 VELOCIDAD_BASE = 50  # Velocidad base del robot (0-100)
