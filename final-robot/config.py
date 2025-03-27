@@ -1,35 +1,29 @@
-# Configuración de pines para Raspberry Pi
-LED_PINS = {
-    "avanzar": 23,
-    "retroceder": 17,
-    "izquierda": 18,
-    "derecha": 27,
-    "parar": 22,
-}
+# config.py
+# Archivo de configuración con los pines y parámetros del robot
 
+# Configuración de pines para el motor (L298N)
 MOTOR_PINS = {
-    "int1": 3,
-    "int2": 24,
-    "ena_A": 26,
-    "int3": 25,
-    "int4": 2,
-    "ena_B": 13,
+    "ENA": 26,  # PWM motor A
+    "IN1": 19,  # Control dirección motor A
+    "IN2": 13,
+    "ENB": 11,  # PWM motor B
+    "IN3": 6,   # Control dirección motor B
+    "IN4": 5
 }
 
-SERVO_PINS = {
-    "servo1": 5,  # Ajustar según conexión
-    "servo2": 6,
+# Configuración de pines para sensores de línea (QTR-8RC)
+SENSOR_PINS = [24, 25, 8, 7, 12, 16, 20, 21]
+
+# Configuración de control de movimiento
+VELOCIDAD_BASE = 50  # Velocidad base del robot (0-100)
+TIEMPO_LECTURA = 0.1  # Tiempo para lectura de sensores (segundos)
+UMBRAL_SENSOR = 0.5  # Umbral para detectar línea negra
+
+# Configuración de PID
+PID_CONSTANTES = {
+    "Kp": 0.5,
+    "Ki": 0.0001,
+    "Kd": 0.1,
+    "INTEGRAL_LIMITE": 0
 }
-
-# Configuración de PixyCam
-PIXY_I2C_ADDRESS = 0x54  # Dirección predeterminada
-
-# Parámetros del seguimiento de línea
-LINE_THRESHOLD = 150  # Valor umbral para detección de línea
-
-# Parámetros de detección de objetos
-OBJECT_DETECTION_MIN_AREA = 500  # Área mínima para considerar un objeto
-
-# Otros parámetros
-LOG_LEVEL = "INFO"
 

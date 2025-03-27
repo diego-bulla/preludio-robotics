@@ -1,43 +1,48 @@
+# routines/line_follower.py
+# Rutina principal del seguidor de línea
+
 import time
 from controllers.motors import MotorController
-from controllers.leds import LEDController
-from controllers.servos import ServoController
 from sensors.line_sensor import LineSensor
-from sensors.object_detector import ObjectDetector
-import config
+from pid import PIDController
+from config import VELOCIDAD_BASE
 
-def main():
-    print("Iniciando robot...")
+class LineFollower:
+    def __init__(self):
+        self.motores = MotorController()
+        self.sensores = LineSensor()
+        self.pid = PIDController()
 
-    # Inicialización de controladores
-    motors = MotorController(config.MOTOR_PINS)
-    leds = LEDController(config.LED_PINS)
-    servos = ServoController(config.SERVO_PINS)
-    line_sensor = LineSensor(config.LINE_THRESHOLD)
-    object_detector = ObjectDetector()
+    def seguir_linea(self):
+        """Ejecuta la rutina de seguimiento de línea"""
+        print("Iniciando seguimiento de línea... Presiona Ctrl+C para detener.")
 
-    try:
-        while True:
-            # Lógica de seguimiento de línea
-            if line_sensor.detect_line():
-                motors.forward()
-                leds.indicate("avanzar")
-            else:
-                motors.stop()
-                leds.indicate("parar")
+        try:
+            while True:
+                valores = self.sensores.leer_sensores()
+                posicion = self.sensores.calcular_posicion(valores)
 
-            # Detección de objetos
-            obj_position = object_detector.detect()
-            if obj_position:
-                motors.move_towards(obj_position)
-                servos.push_object()
+                if posicion is not None:
+                    correccion = self.pid.calcular_correccion(posicion)
 
-            time.sleep(0.1)
+                    velocidad_izq = VELOCIDAD_BASE - correccion
+                    velocidad_der = VELOCIDAD_BASE + correccion
 
-    except KeyboardInterrupt:
-        print("Deteniendo robot...")
-        motors.stop()
-        leds.indicate("parar")
+                    self.motores.control_motores(velocidad_izq, velocidad_der)
+                else:
+                    self.motores.control_motores(0, 0)  # Detener si se pierde la línea
+
+                time.sleep(0.01)
+
+        except KeyboardInterrupt:
+            self.detener()
+
+    def detener(self):
+        """Detiene los motores y limpia recursos"""
+        self.motores.detener()
+        print("\nRutina de seguimiento detenida.")
 
 if __name__ == "__main__":
-    main()
+    robot = LineFollower()
+    robot.seguir_linea()
+
