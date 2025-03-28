@@ -1,46 +1,54 @@
-# controllers/line_sensor.py
-# Módulo para manejar el sensor QTR-8RC
+# sensors/line_sensor.py
+# Versión compatible con GPIOManager
 
-import RPi.GPIO as GPIO
 import time
-from config import SENSOR_PINS, TIEMPO_LECTURA, UMBRAL_SENSOR
+import logging
+from utils.gpio_manager import GPIOManager, gpio_protected
+from config import SENSOR_PINS, TIEMPO_LECTURA, UMBRAL_SENSOR, POSICION_CENTRAL
 
 class LineSensor:
     def __init__(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
+        """Inicialización con registro centralizado de pines"""
+        GPIOManager.init()
+        self.logger = logging.getLogger(__name__)
+        self._register_pins()
 
-        # Configurar pines de sensores como entrada
+    def _register_pins(self):
+        """Registra pines en GPIOManager"""
         for pin in SENSOR_PINS:
+            GPIOManager.reserve_pin(pin)
             GPIO.setup(pin, GPIO.IN)
 
+    @gpio_protected
     def leer_sensores(self):
-        """Lee los valores del sensor QTR-8RC usando RC timing"""
-        valores = []
+        """Lectura protegida con decorador"""
+        return [self._leer_sensor(pin) for pin in SENSOR_PINS]
 
-        for pin in SENSOR_PINS:
+    def _leer_sensor(self, pin):
+        """Método interno para lectura individual"""
+        try:
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.HIGH)
-            time.sleep(0.00001)  # Cargar capacitor (10 µs)
-
+            time.sleep(0.00001)
+            
             GPIO.setup(pin, GPIO.IN)
             inicio = time.time()
-            duracion = 0
-
-            while GPIO.input(pin) and duracion < TIEMPO_LECTURA:
-                duracion = time.time() - inicio
-
-            valores.append(duracion < UMBRAL_SENSOR)  # True si detecta línea negra
-
-        return valores
+            while GPIO.input(pin) and (time.time() - inicio) < TIEMPO_LECTURA:
+                pass
+                
+            return (time.time() - inicio) < UMBRAL_SENSOR
+        except Exception as e:
+            self.logger.error(f"Error en sensor {pin}: {str(e)}")
+            return False
 
     def calcular_posicion(self, valores_sensores):
-        """Calcula la posición de la línea"""
-        if not any(valores_sensores):  # Si no detecta línea
+        """Cálculo de posición con manejo de errores"""
+        if not any(valores_sensores):
             return None
-
-        numerador = sum(i * 1000 for i, v in enumerate(valores_sensores) if v)
-        denominador = sum(1 for v in valores_sensores if v)
-
-        return numerador / denominador if denominador > 0 else 3500  # Posición central
-
+            
+        try:
+            active_sensors = [i for i, v in enumerate(valores_sensores) if v]
+            return sum(active_sensors) * 1000 / len(active_sensors) if active_sensors else POSICION_CENTRAL
+        except Exception as e:
+            self.logger.error(f"Error cálculo posición: {str(e)}")
+            return POSICION_CENTRAL

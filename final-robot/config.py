@@ -1,29 +1,29 @@
 # config.py
-# Archivo de configuración con los pines y parámetros del robot
+# Configuración centralizada del robot
 
-# Configuración de pines para el motor (L298N)
+# --- Pines GPIO ---
 MOTOR_PINS = {
     "ENA": 13,  # PWM motor A
     "IN1": 19,  # Control dirección motor A
     "IN2": 16,
     "ENB": 21,  # PWM motor B
-    "IN3": 26,   # Control dirección motor B
+    "IN3": 26,  # Control dirección motor B
     "IN4": 20
 }
 
-# Configuración de pines para sensores de línea (QTR-8RC)
-SENSOR_PINS = [2, 3, 4, 17, 18, 27]
+SENSOR_PINS = [2, 3, 4, 17, 18, 27]  # Pines para QTR-8RC
 
-# Configuración de control de movimiento
-VELOCIDAD_BASE = 50  # Velocidad base del robot (0-100)
-TIEMPO_LECTURA = 0.1  # Tiempo para lectura de sensores (segundos)
-UMBRAL_SENSOR = 0.5  # Umbral para detectar línea negra
+# --- Parámetros de control ---
+VELOCIDAD_BASE = 50           # Velocidad base (0-100%)
+TIEMPO_LECTURA = 0.1          # Tiempo máximo de lectura de sensores (segundos)
+UMBRAL_SENSOR = 0.5           # Umbral para detectar línea (True/False)
+POSICION_CENTRAL = 3500       # Valor de referencia para el centro de la línea
+FRECUENCIA_PWM = 500          # Frecuencia PWM para motores (Hz)
 
-# Configuración de PID
+# --- Constantes PID ---
 PID_CONSTANTES = {
-    "Kp": 0.5,
-    "Ki": 0.0001,
-    "Kd": 0.1,
-    "INTEGRAL_LIMITE": 0
+    "Kp": 0.5,                # Ganancia proporcional
+    "Ki": 0.0001,             # Ganancia integral
+    "Kd": 0.1,                # Ganancia derivativa
+    "INTEGRAL_LIMITE": 100    # Límite anti-windup
 }
-
