@@ -1,33 +1,28 @@
 import cv2
+import numpy as np
+from picamera2 import Picamera2
+from config import CAMERA
+from utils.gpio_manager import gpio_protected
 
-class Camera:
-    def __init__(self, source=0):
-        """Inicializa la cámara. 'source' puede ser 0 (webcam) o una dirección de PixyCam."""
-        self.cap = cv2.VideoCapture(source)
-        if not self.cap.isOpened():
-            raise Exception("Error: No se pudo acceder a la cámara.")
-
+class CameraController:
+    def __init__(self):
+        self.picam2 = Picamera2()
+        self._configure_camera()
+        
+    def _configure_camera(self):
+        config = self.picam2.create_preview_configuration(
+            main={"size": CAMERA['resolution'], "format": CAMERA['format']})
+        self.picam2.configure(config)
+        
+    @gpio_protected
+    def start(self):
+        self.picam2.start()
+        
+    @gpio_protected    
     def get_frame(self):
-        """Captura un frame de la cámara y lo devuelve en formato OpenCV (numpy array)."""
-        ret, frame = self.cap.read()
-        if not ret:
-            raise Exception("Error: No se pudo capturar el frame.")
-        return frame
-
-    def release(self):
-        """Libera la cámara."""
-        self.cap.release()
-        cv2.destroyAllWindows()
-
-if __name__ == "__main__":
-    cam = Camera()
-    try:
-        while True:
-            frame = cam.get_frame()
-            cv2.imshow("Camera Feed", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-    except KeyboardInterrupt:
-        pass
-    finally:
-        cam.release()
+        frame = self.picam2.capture_array()
+        return cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+        
+    @gpio_protected
+    def stop(self):
+        self.picam2.stop()
