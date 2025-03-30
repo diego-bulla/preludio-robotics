@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-Script para detección y conteo de objetos rojos/verdes en tiempo real con Raspberry Pi + OpenCV.
-Autor: Ingeniera Electrónica
-Fecha: [Fecha]
-"""
 
 import cv2
 import numpy as np
