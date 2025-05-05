@@ -47,8 +47,11 @@ CAMERA_INDEX = 0
 CAMERA_RESOLUTION = (640, 480)
 
 # Color Detection Configuration
-BALL_MIN_RADIUS = 10  # Minimum ball radius in pixels
-BALL_MAX_RADIUS = 100  # Maximum ball radius in pixels
+#BALL_MIN_RADIUS = 10  # Minimum ball radius in pixels
+
+PRISM_MIN_AREA = 500    # Área mínima del prisma en píxeles
+PRISM_MAX_AREA = 5000   # Área máxima del prisma en píxeles
+ASPECT_RATIO_RANGE = (0.5, 2.0)  # Rango de relación de aspecto (ancho/alto)#BALL_MAX_RADIUS = 100  # Maximum ball radius in pixels
 
 # Color ranges in HSV (these may need calibration for your environment)
 COLOR_RANGES = {
@@ -348,20 +351,21 @@ class ColorDetector:
                 self.frame_buffer.append(frame)
 
                 # Detect colored balls
-                detections = self._detect_balls(frame)
+                #detections = self._detect_balls(frame)
+                detections = self._detect_prismas(frame)
 
                 # If not headless, show the frame with detection visualization
                 if not self.headless:
                     # Display results on frame
                     output_frame = frame.copy()
 
-                    for color, balls in detections.items():
-                        for (x, y, r) in balls:
-                            # Draw circle and label
+                    # Reemplaza en _detection_loop:
+                    for color, prismas in detections.items():
+                        for box in prismas:
                             color_bgr = self._get_display_color(color)
-                            cv2.circle(output_frame, (x, y), r, color_bgr, 2)
-                            cv2.putText(output_frame, color, (x - r, y - r - 10),
-                                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_bgr, 2)
+                            cv2.drawContours(output_frame, [box], 0, color_bgr, 2)
+                            cv2.putText(output_frame, color, (box[0][0], box[0][1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color_bgr, 2)
 
                     # Show stats
                     y_pos = 30
@@ -474,8 +478,8 @@ class ColorDetector:
                     hsv_mean = cv2.mean(hsv, mask=mask_roi)[:3]
 
                     # Create feature vector
-                    features = [hsv_mean[0], hsv_mean[1], hsv_mean[2], area, circularity]
-
+                    #features = [hsv_mean[0], hsv_mean[1], hsv_mean[2], area, circularity]
+                   features = [hsv_mean[0], hsv_mean[1], hsv_mean[2], area, aspect_ratio] 
                     # Make prediction to verify color
                     try:
                         predicted_color = self.ml_model.predict([features])[0]
@@ -502,7 +506,51 @@ class ColorDetector:
         self.total_detections += all_detected
 
         return detections
+    
+    def _detect_prismas(self, frame):
+        """Detect colored prismas in the frame"""
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        detections = {}
+        all_detected = 0
 
+        for color, ranges in COLOR_RANGES.items():
+            color_mask = None
+            for range_pair in ranges:
+                lower, upper = range_pair
+                mask = cv2.inRange(hsv, np.array(lower), np.array(upper))
+                color_mask = mask if color_mask is None else cv2.bitwise_or(color_mask, mask)
+
+            kernel = np.ones((5, 5), np.uint8)
+            color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_OPEN, kernel)
+            color_mask = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, kernel)
+
+            contours, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            prismas = []
+
+            for contour in contours:
+                area = cv2.contourArea(contour)
+                if area < PRISM_MIN_AREA or area > PRISM_MAX_AREA:
+                    continue
+
+                rect = cv2.minAreaRect(contour)
+                box = cv2.boxPoints(rect)
+                box = np.int0(box)
+                width, height = rect[1]
+                aspect_ratio = max(width, height) / min(width, height) if min(width, height) > 0 else 0
+
+                if not (ASPECT_RATIO_RANGE[0] <= aspect_ratio <= ASPECT_RATIO_RANGE[1]):
+                    continue
+
+                prismas.append(box)
+
+            if prismas:
+                detections[color] = prismas
+                self.color_counts[color] += len(prismas)
+                all_detected += len(prismas)
+
+        self.total_detections += all_detected
+        return detections
+        
     def _get_display_color(self, color_name):
         """Get BGR values for displaying a color"""
         color_map = {
