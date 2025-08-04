@@ -65,7 +65,7 @@ def stop_motors():
     pwm_left.ChangeDutyCycle(0)
     GPIO.output([IN1, IN2, IN3, IN4], GPIO.LOW)
 
-def move_forward(speed=50, duration=2):
+def move_forward(speed=25, duration=2):
     """Mover adelante"""
     global count_right, count_left
     print(f"🔄 Adelante - Velocidad: {speed}% - Duración: {duration}s")
@@ -91,7 +91,7 @@ def move_forward(speed=50, duration=2):
     stop_motors()
     print(f"\n✅ Final - Derecho: {count_right} | Izquierdo: {count_left}")
 
-def move_backward(speed=50, duration=2):
+def move_backward(speed=25, duration=2):
     """Mover atrás"""
     global count_right, count_left
     print(f"🔄 Atrás - Velocidad: {speed}% - Duración: {duration}s")
@@ -115,7 +115,7 @@ def move_backward(speed=50, duration=2):
     stop_motors()
     print(f"\n✅ Final - Derecho: {count_right} | Izquierdo: {count_left}")
 
-def turn_left(speed=50, duration=1):
+def turn_left(speed=30, duration=1):
     """Girar izquierda"""
     global count_right, count_left
     print(f"🔄 Izquierda - Velocidad: {speed}% - Duración: {duration}s")
@@ -139,7 +139,7 @@ def turn_left(speed=50, duration=1):
     stop_motors()
     print(f"\n✅ Final - Derecho: {count_right} | Izquierdo: {count_left}")
 
-def turn_right(speed=50, duration=1):
+def turn_right(speed=30, duration=1):
     """Girar derecha"""
     global count_right, count_left
     print(f"🔄 Derecha - Velocidad: {speed}% - Duración: {duration}s")
@@ -209,19 +209,19 @@ def test_complete():
         
         # Secuencia de pruebas
         print("\n1. Movimiento adelante:")
-        move_forward(40, 3)
+        move_forward(20, 3)
         time.sleep(1)
         
         print("\n2. Movimiento atrás:")
-        move_backward(40, 3)
+        move_backward(20, 3)
         time.sleep(1)
         
         print("\n3. Giro izquierda:")
-        turn_left(40, 1.5)
+        turn_left(25, 1.5)
         time.sleep(1)
         
         print("\n4. Giro derecha:")
-        turn_right(40, 1.5)
+        turn_right(25, 1.5)
         time.sleep(1)
         
         print("\n✅ PRUEBA COMPLETA TERMINADA")
