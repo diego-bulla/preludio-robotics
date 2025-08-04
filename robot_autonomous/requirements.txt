@@ -1,0 +1,18 @@
+# requirements.txt - Dependencias del Robot Autónomo (CORREGIDO)
+
+# GPIO y Hardware
+RPi.GPIO>=0.7.0
+
+# Comunicación Serial
+pyserial>=3.5
+
+# Procesamiento Numérico (versión compatible)
+numpy>=1.19.0
+
+# Visión por Computadora (para cámara USB)
+opencv-python>=4.5.0
+
+# Machine Learning (opcional - comentar si no se necesita)
+# tensorflow>=2.8.0
+
+# NOTA: threading es parte de Python estándar - no instalar
